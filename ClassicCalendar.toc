@@ -1,0 +1,6 @@
+## Interface: 11302
+## Title: Classic Calendar
+## Notes: A Calendar/Scheduling addon to help players find and schedule group events
+
+ClassicCalendar.xml
+ClassicCalendar.lua

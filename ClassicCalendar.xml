@@ -1,0 +1,21 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+  <Frame name="WorldOfWarcraftAddOnIntermediate" parent="UIParent" inherits="BasicFrameTemplate" hidden="true">
+    <Size x="450" y="500"/>
+    <Anchors>
+      <Anchor point="CENTER"/>
+    </Anchors>
+    <Frames name="AddOnFrames">
+      <Button name="AddOnButton" inherits="UIPanelButtonTemplate" text="Click me!">
+        <Size x="100" y="30"/>
+        <Anchors>
+          <Anchor point="BOTTOM">
+            <Offset>
+              <AbsDimension x="0" y="20" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </Button>
+    </Frames>
+  </Frame>
+</Ui>
