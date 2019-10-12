@@ -2,6 +2,7 @@
 ## Title: Classic Calendar
 ## Notes: A Calendar/Scheduling addon to help players find and schedule group events
 
+##SavedVariablesPerCharacter: Test_Save
+
 ClassicCalendar.xml
-CreateEvent.xml
 ClassicCalendar.lua
