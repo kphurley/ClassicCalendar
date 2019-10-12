@@ -6,7 +6,35 @@
       <Anchor point="CENTER"/>
     </Anchors>
     <Frames name="AddOnFrames">
-      <Button name="AddOnButton" inherits="UIPanelButtonTemplate" text="Click me!">
+      <Button name="CreateEventButton" inherits="UIPanelButtonTemplate" text="Create Event">
+        <Size x="100" y="30"/>
+        <Anchors>
+          <Anchor point="BOTTOM">
+            <Offset>
+              <AbsDimension x="0" y="20" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </Button>
+    </Frames>
+  </Frame>
+  <Frame name="CreateEvent" parent="UIParent" inherits="BasicFrameTemplate" hidden="true">
+    <Size x="450" y="500"/>
+    <Anchors>
+      <Anchor point="CENTER"/>
+    </Anchors>
+    <Frames name="AddOnFrames">
+      <Button name="SubmitButton" inherits="UIPanelButtonTemplate" text="Submit">
+        <Size x="100" y="30"/>
+        <Anchors>
+          <Anchor point="BOTTOM">
+            <Offset>
+              <AbsDimension x="0" y="50" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </Button>
+      <Button name="BackButton" inherits="UIPanelButtonTemplate" text="Back">
         <Size x="100" y="30"/>
         <Anchors>
           <Anchor point="BOTTOM">
