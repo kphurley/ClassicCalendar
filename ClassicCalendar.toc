@@ -3,4 +3,5 @@
 ## Notes: A Calendar/Scheduling addon to help players find and schedule group events
 
 ClassicCalendar.xml
+CreateEvent.xml
 ClassicCalendar.lua
