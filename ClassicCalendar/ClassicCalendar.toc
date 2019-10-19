@@ -5,4 +5,5 @@
 ##SavedVariablesPerCharacter: Test_Save
 
 ClassicCalendar.xml
+Bindings.xml
 ClassicCalendar.lua

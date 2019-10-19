@@ -18,7 +18,7 @@
       </Button>
     </Frames>
   </Frame>
-  <Frame name="CreateEvent" parent="UIParent" inherits="BasicFrameTemplate" hidden="true">
+  <Frame name="AddListingFrame" parent="UIParent" inherits="BasicFrameTemplate" hidden="true">
     <Size x="450" y="500"/>
     <Anchors>
       <Anchor point="CENTER"/>
