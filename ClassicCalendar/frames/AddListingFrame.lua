@@ -11,11 +11,44 @@ function uuid()
 end
 
 function saveListing (listing, guid)
-  Test_Save[guid] = listing
+  if not Test_Save then
+    Test_Save = {}
+  end
+
+  local dateString = dateIntToDateString(listing.startTime)
+
+  if not Test_Save[dateString] then
+    Test_Save[dateString] = {}
+  end
+
+  Test_Save[dateString][guid] = listing
 end
 
 function parseListingToMessage (listing)
-  return "i:" .. listing.id .. "," .. "t:" .. listing.title .. "," .. "d:" .. listing.description
+  return 
+    "i:" ..
+    listing.id ..
+    "," ..
+    "t:" ..
+    listing.title ..
+    "," ..
+    "d:" ..
+    listing.description ..
+    "," ..
+    "st:" ..
+    listing.startTime ..
+    "," ..
+    "et:" ..
+    listing.endTime ..
+    "," ..
+    "min:" ..
+    listing.minLevel ..
+    "," ..
+    "max:" ..
+    listing.maxLevel ..
+    "," ..
+    "n:" ..
+    listing.numPlayers
 end
 
 function broadcastListing (listing)
@@ -174,23 +207,38 @@ function createAddListingFrame ()
   numPlayersInput:SetMaxLetters(2)
 
   SubmitButton:SetScript('OnClick', function()
-    -- ------Event------------
-    -- titleInput
-    -- descriptionInput
-    -- startTimeHourInput  (These need dates so we can convert)
-    -- startTimeMinuteInput
-    -- endTimeHourInput
-    -- endTimeMinuteInput
-
-    -- ------Metadata----------
+    -- TODO - Include this metadata
     -- minLevelInput
     -- maxLevelInput
     -- numPlayersInput
+
+    -- TODO change hard coded year
+    local startDateInt = time{
+      year="2019",
+      month=startDateMonthInput:GetText(),
+      day=startDateDayInput:GetText(),
+      hour=startTimeHourInput:GetText(),
+      min=startTimeMinuteInput:GetText()
+    }
+
+    local endDateInt = time{
+      year="2019",
+      month=endDateMonthInput:GetText(),
+      day=endDateDayInput:GetText(),
+      hour=endTimeHourInput:GetText(),
+      min=endTimeMinuteInput:GetText()
+    }
+
     local guid = uuid()
     local pendingListing = {
       id=guid,
       title=titleInput:GetText(),
-      description=descriptionInput:GetText()
+      description=descriptionInput:GetText(),
+      startTime=startDateInt,
+      endTime=endDateInt,
+      minLevel=minLevelInput:GetText(),
+      maxLevel=maxLevelInput:GetText(),
+      numPlayers=numPlayersInput:GetText()
     }
 
     saveListing(pendingListing, guid)

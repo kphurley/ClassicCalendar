@@ -1,6 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
-  <Include file = "frames\AddListingFrame.lua" />
-  <Include file = "frames\CalendarFrame.lua" />
-  <Include file = "frames\EventFrame.lua" />
+  <Include file = "frames/AddListingFrame.lua" />
+  <Include file = "frames/CalendarFrame.lua" />
+  <Include file = "frames/EventFrame.lua" />
+  <Include file = "utilities/DateParsing.lua" />
 </Ui>

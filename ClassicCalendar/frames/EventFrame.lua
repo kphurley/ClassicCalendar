@@ -20,14 +20,8 @@ end
 
 function createEventFrame()
   local eventFrame = CreateFrame("Frame")
-  eventFrame.OnEvent = eventFrame_onEvent
-
-  eventFrame:SetScript("OnEvent", eventFrame.OnEvent);
-  eventFrame:RegisterEvent("PLAYER_LOGIN");
-  eventFrame:RegisterEvent("ADDON_LOADED");
-  eventFrame:RegisterEvent("CHAT_MSG_ADDON");
-
-  eventFrame:SetScript("OnEvent", eventFrame.OnEvent);
+  
+  eventFrame:SetScript("OnEvent", eventFrame_onEvent);
   eventFrame:RegisterEvent("PLAYER_LOGIN");
   eventFrame:RegisterEvent("ADDON_LOADED");
   eventFrame:RegisterEvent("CHAT_MSG_ADDON");
