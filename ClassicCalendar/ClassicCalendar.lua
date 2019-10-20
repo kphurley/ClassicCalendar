@@ -7,8 +7,6 @@ function SlashCmdList.CLASSICCALENDAR(msg, editBox)
   WorldOfWarcraftAddOnIntermediate:Show()
 end
 
-AddonPrefix = "CLASSIC_CALENDAR"
-
 -- OnLoad
 ClassicCalendarNS.createEventFrame()
 ClassicCalendarNS.createCalendarFrame()

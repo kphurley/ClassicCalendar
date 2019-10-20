@@ -25,7 +25,7 @@ function saveListing (listing, guid)
 end
 
 function parseListingToMessage (listing)
-  return 
+  return
     "i:" ..
     listing.id ..
     "," ..
@@ -51,10 +51,13 @@ function parseListingToMessage (listing)
     listing.numPlayers
 end
 
+-- Convention here needs to be that only changes or sync requests are broadcast
 function broadcastListing (listing)
-  -- Send listing to addon chat channel
+  -- Send listing (change) to addon chat channel
+  -- The change must include the id of the new node we're adding
+  -- With a link back to the node we came from
   local message = parseListingToMessage(listing)
-  C_ChatInfo.SendAddonMessage (AddonPrefix, message, "GUILD");
+  C_ChatInfo.SendAddonMessage (ClassicCalendarNS.CLASSIC_CALENDAR_CHANGE, message, "GUILD");
 end
 
 function createAddListingFrame ()
@@ -238,8 +241,16 @@ function createAddListingFrame ()
       endTime=endDateInt,
       minLevel=minLevelInput:GetText(),
       maxLevel=maxLevelInput:GetText(),
-      numPlayers=numPlayersInput:GetText()
+      numPlayers=numPlayersInput:GetText(),
+      updatedAt=time()
     }
+
+    -- TODO - maybe what we want to do here instead is:
+      -- local change = saveChangeFromListing(pendingListing, guid)
+      -- applyChange(change)
+      -- broadcastChange(change)
+    -- That way, only the applyChange function can write to the actual DB
+    -- And it would be reusable in the event handler
 
     saveListing(pendingListing, guid)
     broadcastListing(pendingListing)
