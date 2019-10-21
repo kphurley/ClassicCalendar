@@ -48,16 +48,17 @@ function parseListingToMessage (listing)
     listing.maxLevel ..
     "," ..
     "n:" ..
-    listing.numPlayers
+    listing.numPlayers ..
+    "," ..
+    "u:" ..
+    listing.updatedAt
 end
 
 -- Convention here needs to be that only changes or sync requests are broadcast
 function broadcastListing (listing)
   -- Send listing (change) to addon chat channel
-  -- The change must include the id of the new node we're adding
-  -- With a link back to the node we came from
   local message = parseListingToMessage(listing)
-  C_ChatInfo.SendAddonMessage (ClassicCalendarNS.CLASSIC_CALENDAR_CHANGE, message, "GUILD");
+  C_ChatInfo.SendAddonMessage ("CCAL_CHANGE_RES", message, "WHISPER", "Niosporin-Atiesh")
 end
 
 function createAddListingFrame ()
@@ -66,12 +67,12 @@ function createAddListingFrame ()
   -- We should clean that up at some point too.
 
   -- HEADING
-  local headingText = AddListingFrame:CreateFontString("Heading", 'ARTWORK', "GameFontNormal");
+  local headingText = AddListingFrame:CreateFontString("Heading", 'ARTWORK', "GameFontNormal")
   headingText:SetPoint("TOP", 0, -40)
   headingText:SetText("Create Event")
 
   -- TITLE
-  local titleLabel = AddListingFrame:CreateFontString("TitleLabel", 'ARTWORK', "GameFontNormal");
+  local titleLabel = AddListingFrame:CreateFontString("TitleLabel", 'ARTWORK', "GameFontNormal")
   titleLabel:SetPoint("TOPLEFT", 55, -80)
   titleLabel:SetText("Title:")
 
@@ -82,7 +83,7 @@ function createAddListingFrame ()
   titleInput:SetMaxLetters(15)
 
   -- DESCRIPTION
-  local descriptionLabel = AddListingFrame:CreateFontString("DescriptionLabel", 'ARTWORK', "GameFontNormal");
+  local descriptionLabel = AddListingFrame:CreateFontString("DescriptionLabel", 'ARTWORK', "GameFontNormal")
   descriptionLabel:SetPoint("TOPLEFT", 20, -120)
   descriptionLabel:SetText("Description:")
 
@@ -94,7 +95,7 @@ function createAddListingFrame ()
   descriptionInput:SetMaxLetters(60)
 
   -- START TIME
-  local startTimeLabel = AddListingFrame:CreateFontString("StartTimeLabel", 'ARTWORK', "GameFontNormal");
+  local startTimeLabel = AddListingFrame:CreateFontString("StartTimeLabel", 'ARTWORK', "GameFontNormal")
   startTimeLabel:SetPoint("TOPLEFT", 50, -160)
   startTimeLabel:SetText("Start:")
 
@@ -105,7 +106,7 @@ function createAddListingFrame ()
   startDateMonthInput:SetMaxLetters(2)
   startDateMonthInput:SetText("MM")
 
-  local startDateSlashLabel = AddListingFrame:CreateFontString("startDateSlashLabel", 'ARTWORK', "GameFontNormal");
+  local startDateSlashLabel = AddListingFrame:CreateFontString("startDateSlashLabel", 'ARTWORK', "GameFontNormal")
   startDateSlashLabel:SetPoint("TOPLEFT", 150, -160)
   startDateSlashLabel:SetText("/")
 
@@ -123,7 +124,7 @@ function createAddListingFrame ()
   startTimeHourInput:SetMaxLetters(2)
   startTimeHourInput:SetText("HH")
 
-  local startTimeColonLabel = AddListingFrame:CreateFontString("StartTimeColon", 'ARTWORK', "GameFontNormal");
+  local startTimeColonLabel = AddListingFrame:CreateFontString("StartTimeColon", 'ARTWORK', "GameFontNormal")
   startTimeColonLabel:SetPoint("TOPLEFT", 245, -160)
   startTimeColonLabel:SetText(":")
 
@@ -135,7 +136,7 @@ function createAddListingFrame ()
   startTimeMinuteInput:SetText("MM")
 
   -- END TIME
-  local endTimeLabel = AddListingFrame:CreateFontString("EndTimeLabel", 'ARTWORK', "GameFontNormal");
+  local endTimeLabel = AddListingFrame:CreateFontString("EndTimeLabel", 'ARTWORK', "GameFontNormal")
   endTimeLabel:SetPoint("TOPLEFT", 55, -200)
   endTimeLabel:SetText("End:")
 
@@ -146,7 +147,7 @@ function createAddListingFrame ()
   endDateMonthInput:SetMaxLetters(2)
   endDateMonthInput:SetText("MM")
 
-  local endDateSlashLabel = AddListingFrame:CreateFontString("endDateSlashLabel", 'ARTWORK', "GameFontNormal");
+  local endDateSlashLabel = AddListingFrame:CreateFontString("endDateSlashLabel", 'ARTWORK', "GameFontNormal")
   endDateSlashLabel:SetPoint("TOPLEFT", 150, -200)
   endDateSlashLabel:SetText("/")
 
@@ -165,7 +166,7 @@ function createAddListingFrame ()
   endTimeHourInput:SetMaxLetters(2)
   endTimeHourInput:SetText("HH")
 
-  local endTimeColonLabel = AddListingFrame:CreateFontString("EndTimeColon", 'ARTWORK', "GameFontNormal");
+  local endTimeColonLabel = AddListingFrame:CreateFontString("EndTimeColon", 'ARTWORK', "GameFontNormal")
   endTimeColonLabel:SetPoint("TOPLEFT", 245, -200)
   endTimeColonLabel:SetText(":")
 
@@ -177,7 +178,7 @@ function createAddListingFrame ()
   endTimeMinuteInput:SetText("MM")
 
   -- MIN LEVEL
-  local minLevelLabel = AddListingFrame:CreateFontString("MinLevelLabel", 'ARTWORK', "GameFontNormal");
+  local minLevelLabel = AddListingFrame:CreateFontString("MinLevelLabel", 'ARTWORK', "GameFontNormal")
   minLevelLabel:SetPoint("TOPLEFT", 30, -240)
   minLevelLabel:SetText("Min Level:")
 
@@ -188,7 +189,7 @@ function createAddListingFrame ()
   minLevelInput:SetMaxLetters(2)
 
   -- MAX LEVEL
-  local maxLevelLabel = AddListingFrame:CreateFontString("MaxLevelLabel", 'ARTWORK', "GameFontNormal");
+  local maxLevelLabel = AddListingFrame:CreateFontString("MaxLevelLabel", 'ARTWORK', "GameFontNormal")
   maxLevelLabel:SetPoint("TOPLEFT", 30, -280)
   maxLevelLabel:SetText("Max Level:")
 
@@ -199,7 +200,7 @@ function createAddListingFrame ()
   maxLevelInput:SetMaxLetters(2)
 
   -- NUM PLAYERS
-  local numPlayersLabel = AddListingFrame:CreateFontString("NumPlayersLabel", 'ARTWORK', "GameFontNormal");
+  local numPlayersLabel = AddListingFrame:CreateFontString("NumPlayersLabel", 'ARTWORK', "GameFontNormal")
   numPlayersLabel:SetPoint("TOPLEFT", 20, -320)
   numPlayersLabel:SetText("Max players:")
 
@@ -210,11 +211,6 @@ function createAddListingFrame ()
   numPlayersInput:SetMaxLetters(2)
 
   SubmitButton:SetScript('OnClick', function()
-    -- TODO - Include this metadata
-    -- minLevelInput
-    -- maxLevelInput
-    -- numPlayersInput
-
     -- TODO change hard coded year
     local startDateInt = time{
       year="2019",

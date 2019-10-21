@@ -24,9 +24,14 @@ function createCalendarFrame()
     end
   end
 
-  CreateEventButton:SetScript('OnClick', function()
+  AddListingButton:SetScript('OnClick', function()
     WorldOfWarcraftAddOnIntermediate:Hide()
     AddListingFrame:Show()
+  end)
+
+  -- For debugging - remove
+  TestSyncButton:SetScript('OnClick', function()
+    getTimeStampsFromChangeDB()
   end)
 end
 
