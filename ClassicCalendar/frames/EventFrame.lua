@@ -27,20 +27,7 @@ local KEY_TO_SHORTHAND_MAPPING = {
   updatedAt="u"
 }
 
--- function getTimeStampsFromChangeDB()
---   changeTimeStamps = {}
---   for timeStamp in pairs(Test_Save_Changes) do table.insert(changeTimeStamps, timeStamp) end
-
---   -- Will this sort automatically?  Might need a custom sorter function..
---   table.sort(changeTimeStamps)
-
---   -- debugging...
---   print(table.concat(changeTimeStamps, ","))
-
---   return changeTimeStamps
--- end
-
--- Create a CHAT_ADDON_MSG with prefix CLASSIC_CALENDAR_SYNC letting clients know that we want to sync
+-- Create a CHAT_ADDON_MSG with prefix CCAL_SYNC letting clients know that we want to sync
 -- and providing the most recent change that we have
 function broadcastSyncRequest(timeStamp)
   C_ChatInfo.SendAddonMessage ("CCAL_SYNC", timestamp, "GUILD")
@@ -52,7 +39,7 @@ end
 -- The form should be an array-like table:  { <id1>, <id2>, ...}
 -- This is so the receiver can queue up applying the changes
 function handleSyncRequest(message, channel, sender, ...)
-  -- This SHOULD be sorted by most recent
+  -- This is sorted with the most recent timestamps at the front
   local currentTimeStamps = getTimeStampsFromChangeDB()
   local timeStampsNeeded = {}
   local synced = false
@@ -69,6 +56,7 @@ function handleSyncRequest(message, channel, sender, ...)
 
   local responseMessage = table.concat(timeStampsNeeded, ",")
   print("sync response ", responseMessage)
+  -- TODO - uncomment the following when sync is ready
   --C_ChatInfo.SendAddonMessage("CCAL_SYNC_RES", responseMessage, "WHISPER", sender)  -- TODO, get the target from the function args
 end
 
@@ -78,9 +66,8 @@ function handleSyncResponse(message, channel, sender, ...)
 end
 
 -- Send the change with the given ID as an message
-function handleChangeRequest(changeId, channel, sender, ...)
-  local changeEntry = Test_Save_Changes[changeId]
-  
+function handleChangeRequest(timeStamp, channel, sender, ...)
+  local changeEntry = Test_Save_Changes[timeStamp]
 
   C_ChatInfo.SendAddonMessage("CCAL_CHANGE_RES", message, "WHISPER", sender)
 end
@@ -96,8 +83,6 @@ function handleChangeResponse(message, channel, sender, ...)
     table.insert(tempParsedMessage, word)
   end
 
-  print("maxn", table.maxn(tempParsedMessage))
-
   -- Now, tempParsedMessage is a table that is "array-like".
   -- Create actual key-value pairs to store in pendingChange
   for i=1, table.maxn(tempParsedMessage), 2 do
@@ -111,7 +96,7 @@ function handleChangeResponse(message, channel, sender, ...)
   if (Test_Save_Changes[pendingChange.updatedAt]) then
     return
   else
-    -- Apply the change
+    -- TODO: Apply the change
       -- Lookup the id of the listing the change points to
       -- Update any properties
 
