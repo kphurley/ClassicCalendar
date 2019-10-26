@@ -58,39 +58,36 @@ function createListingsFrame()
   ListingsFrame.ListingsScrollFrame:SetPoint("BOTTOM", ListingsFrame.ListingsScrollFrameContainer, "BOTTOM", 0, 12)
   ListingsFrame.ListingsScrollFrame:SetPoint("RIGHT", ListingsFrame.ListingsScrollFrameContainer, "RIGHT", -30, 0)
   
-  local NUM_BUTTONS = 4
-  local BUTTON_HEIGHT = 100
+  local NUM_BUTTONS = 8
+  local BUTTON_HEIGHT = 50
   local BUTTON_WIDTH = 350
   
   local buttons = {}
+  local buttonInfoList = {}
   local keys = {}
   
-  -- This looks wrong, scrolling doesnt really work as intended
   function UpdateListingScrollFrame(frame)
-      i = 1
-      for k,v in pairs(Test_Save_Changes) do
-        keys[i] = k
-        i = i + 1
-      end
-
       local numItems = #keys
       FauxScrollFrame_Update(frame, numItems, NUM_BUTTONS, BUTTON_HEIGHT)
       local offset = FauxScrollFrame_GetOffset(frame)
-      print(offset)
+
       for line = 1, NUM_BUTTONS do
           local lineplusoffset = line + offset
           local button = buttons[line]
           if lineplusoffset > numItems then
               button:Hide()
           else
-              -- working
-              --button.Title:SetText(Test_Save_Changes["1571623211"].description)
-              button.Title:SetText(Test_Save_Changes[keys[lineplusoffset]].description)
+            if not buttonInfoList[lineplusoffset].header then
+              button.Title:SetText(buttonInfoList[lineplusoffset].title)
+              button.Title:SetFontObject("GameFontNormal")
+              button.Description:SetText(buttonInfoList[lineplusoffset].description)
+            else
+              button.Title:SetText("")
+              button.Description:SetText(buttonInfoList[lineplusoffset].header)
+              button.Description:SetFontObject("GameFontNormalLarge")
+            end
 
-              -- working
-              --button.Description:SetText(Test_Save_Changes["1571623211"].title)
-              button.Description:SetText(Test_Save_Changes[keys[lineplusoffset]].title)
-              button:Show()
+            button:Show()
           end
       end
   end
@@ -101,7 +98,26 @@ function createListingsFrame()
   end)
 
   ListingsFrame.ListingsScrollFrame:SetScript("OnShow", function(self, event, ...)
-    -- At this point Test_Save_Changes SHOULD be loaded...
+    -- At this point Test_Save SHOULD be loaded...
+
+    -- Initialize keys - flatten the structure to a list in the form
+    -- { date1, event, event, date2, event, event, event, ... }
+    local keyIdx = 1
+    for key, value in pairs(Test_Save) do
+      keys[keyIdx] = key
+      buttonInfoList[keyIdx] = { header = key } -- TODO - convert key back to a date
+      keyIdx = keyIdx + 1
+     
+      for id, listing in pairs(value) do
+        keys[keyIdx] = id
+        buttonInfoList[keyIdx] = listing
+        keyIdx = keyIdx + 1
+      end
+    end
+
+    print(table.concat(keys, ","))
+
+    -- Create the buttons to show in the frame
     for i = 1, NUM_BUTTONS do
         local button = CreateFrame("Button", nil, ListingsFrame.ListingsScrollFrame:GetParent())
         if i == 1 then
@@ -110,14 +126,11 @@ function createListingsFrame()
             button:SetPoint("TOP", buttons[i - 1], "BOTTOM")
         end
 
-        -- TODO - the mocked data is swapped fix this
         button.Title = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         button.Title:SetPoint("TOPLEFT", button, "TOPLEFT", 0, -5)
-        --button.Title:SetText(Test_Save_Changes["1571623211"].description)
 
         button.Description = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         button.Description:SetPoint("TOPLEFT", button.Title, "BOTTOMLEFT", 0, -5)
-        --button.Description:SetText(Test_Save_Changes["1571623211"].title)
 
         button:SetSize(BUTTON_WIDTH, BUTTON_HEIGHT)
         
