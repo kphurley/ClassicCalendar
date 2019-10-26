@@ -2,7 +2,11 @@
 ..\FrameXML\UI.xsd">
   <Include file = "utilities/DateParsing.lua" />
   <Include file = "utilities/TimeStamps.lua" />
+
+  <Include file = "components/FontStrings.lua" />
+
   <Include file = "frames/EventFrame.lua" />
   <Include file = "frames/AddListingFrame.lua" />
   <Include file = "frames/CalendarFrame.lua" />
+  <Include file = "frames/ListingsFrame.lua" />
 </Ui>
