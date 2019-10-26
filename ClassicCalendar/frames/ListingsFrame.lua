@@ -63,10 +63,11 @@ function createListingsFrame()
   local BUTTON_WIDTH = 350
   
   local buttons = {}
+  local keys = {}
   
+  -- This looks wrong, scrolling doesnt really work as intended
   function UpdateListingScrollFrame(frame)
       i = 1
-      keys = {}
       for k,v in pairs(Test_Save_Changes) do
         keys[i] = k
         i = i + 1
@@ -75,13 +76,20 @@ function createListingsFrame()
       local numItems = #keys
       FauxScrollFrame_Update(frame, numItems, NUM_BUTTONS, BUTTON_HEIGHT)
       local offset = FauxScrollFrame_GetOffset(frame)
+      print(offset)
       for line = 1, NUM_BUTTONS do
           local lineplusoffset = line + offset
           local button = buttons[line]
           if lineplusoffset > numItems then
               button:Hide()
           else
-              button:SetText(list[lineplusoffset])
+              -- working
+              --button.Title:SetText(Test_Save_Changes["1571623211"].description)
+              button.Title:SetText(Test_Save_Changes[keys[lineplusoffset]].description)
+
+              -- working
+              --button.Description:SetText(Test_Save_Changes["1571623211"].title)
+              button.Description:SetText(Test_Save_Changes[keys[lineplusoffset]].title)
               button:Show()
           end
       end
@@ -105,11 +113,11 @@ function createListingsFrame()
         -- TODO - the mocked data is swapped fix this
         button.Title = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         button.Title:SetPoint("TOPLEFT", button, "TOPLEFT", 0, -5)
-        button.Title:SetText(Test_Save_Changes["1571623211"].description)
+        --button.Title:SetText(Test_Save_Changes["1571623211"].description)
 
         button.Description = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         button.Description:SetPoint("TOPLEFT", button.Title, "BOTTOMLEFT", 0, -5)
-        button.Description:SetText(Test_Save_Changes["1571623211"].title)
+        --button.Description:SetText(Test_Save_Changes["1571623211"].title)
 
         button:SetSize(BUTTON_WIDTH, BUTTON_HEIGHT)
         
