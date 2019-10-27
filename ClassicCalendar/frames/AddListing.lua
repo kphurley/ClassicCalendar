@@ -61,7 +61,7 @@ function broadcastListing (listing)
   C_ChatInfo.SendAddonMessage ("CCAL_CHANGE_RES", message, "WHISPER", "Niosporin-Atiesh")
 end
 
-function createAddListingFrame ()
+function createAddListingFrame()
   -- So much repetition and garbage here.  Probably needs to be totally redone once data is working.
   -- Note that AddListingFrame is a global defined in the XML, so it's technically already "created"
   -- We should clean that up at some point too.
@@ -252,14 +252,14 @@ function createAddListingFrame ()
     broadcastListing(pendingListing)
     
     AddListingFrame:Hide()
-    WorldOfWarcraftAddOnIntermediate:Show()
+    ListingsFrame:Show()
   end)
 
   BackButton:SetScript('OnClick', function()
     --local inputText = input:GetText()
     
     AddListingFrame:Hide()
-    WorldOfWarcraftAddOnIntermediate:Show()
+    ListingsFrame:Show()
   end)
 end
 
