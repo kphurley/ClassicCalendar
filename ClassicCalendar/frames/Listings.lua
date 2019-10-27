@@ -131,11 +131,9 @@ function createListingsFrame()
           ViewListingFrame:Hide()
         end
 
-        -- TODO - Noop if this is a header button
-        
-        -- This will create a ViewListingFrame if it doesn't exist
-        -- Or modify the existing
-        createViewListingFrame(button, buttonInfoList[i])
+        if not buttonInfoList[i].header then
+          createViewListingFrame(button, buttonInfoList[i])
+        end
       end)
       
       buttons[i] = button
