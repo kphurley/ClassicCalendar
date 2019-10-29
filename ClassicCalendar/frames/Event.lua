@@ -1,37 +1,6 @@
 local ClassicCalendar, ClassicCalendarNS = ...
 
--- This is here to save space, since we can only send 250 characters over the wire
-SHORTHAND_TO_KEY_MAPPING = {
-  i="id",
-  t="title",
-  d="description",
-  st="startTime",
-  et="endTime",
-  min="minLevel",
-  max="maxLevel",
-  num="numPlayers",
-  a="attendees",
-  u="updatedAt",
-  l="level",
-  n="name",
-  c="class"
-}
-
-KEY_TO_SHORTHAND_MAPPING = {
-  id="i",
-  title="t",
-  description="d",
-  startTime="st",
-  endTime="et",
-  minLevel="min",
-  maxLevel="max",
-  numPlayers="num",
-  attendees="a",
-  updatedAt="u",
-  name="n",
-  level="l",
-  class="c"
-}
+-- See Messages.lua for constants and mappings around encoding and decoding messages
 
 -- Create a CHAT_ADDON_MSG with prefix CCAL_SYNC letting clients know that we want to sync
 -- and providing the most recent change that we have
@@ -61,59 +30,66 @@ function handleSyncRequest(message, channel, sender, ...)
   end
 
   local responseMessage = table.concat(timeStampsNeeded, ",")
-  print("sync response ", responseMessage)
-  -- TODO - uncomment the following when sync is ready
-  -- Question - can we just send CCAL_CHANGE_RES here?  Why do we need an extra one for SYNC?
-  --C_ChatInfo.SendAddonMessage("CCAL_SYNC_RES", responseMessage, "WHISPER", sender)  -- TODO, get the target from the function args
+  C_ChatInfo.SendAddonMessage("CCAL_SYNC_RES", responseMessage, "WHISPER", sender)
 end
 
 -- This function handles asking the sender for any needed changes that this client is missing
 -- The contents of the message should be a list of timestamps this player is missing
-function handleSyncResponse(message, channel, sender, ...)
-  -- TODO - decode message to array
+function handleSyncResponse(msg, channel, sender, ...)
+  local tempParsedMessage = {}
+  
+  for word in msg:gmatch("%w+") do
+    table.insert(tempParsedMessage, word)
+  end
 
   -- For each timestamp in message - request the change using CCAL_CHANGE
+  for i, word in tempParsedMessage do
+    C_ChatInfo.SendAddonMessage("CCAL_CHANGE", word, "WHISPER", sender)
+  end
 end
 
 -- Send the change with the given ID as an message
 function handleChangeRequest(timeStamp, channel, sender, ...)
   local changeEntry = Test_Save_Changes[timeStamp]
+  local encodedChange = encodeOutgoingMessage(changeEntry)
 
-  --C_ChatInfo.SendAddonMessage("CCAL_CHANGE_RES", message, "WHISPER", sender)
+  C_ChatInfo.SendAddonMessage("CCAL_CHANGE_RES", encodedChange, "WHISPER", sender)
 end
 
 -- This function handles applying changes and writing the change encoded in message to the change DB
 function handleChangeResponse(message, channel, sender, ...)
-  -- tempParsedMessage = {}
-  -- pendingChange = {}
-
-  -- -- Split the message into "words" - the %w+ is a lua matcher for alphanumeric characters
-  -- -- See: http://www.lua.org/pil/20.2.html for the docs on this
-  -- for word in message:gmatch("%w+") do
-  --   table.insert(tempParsedMessage, word)
-  -- end
-
-  -- -- Now, tempParsedMessage is a table that is "array-like".
-  -- -- Create actual key-value pairs to store in pendingChange
-  -- for i=1, table.maxn(tempParsedMessage), 2 do
-  --   local shortHandKey = tempParsedMessage[i]
-  --   local value = tempParsedMessage[i+1]
-  --   local key = SHORTHAND_TO_KEY_MAPPING[shortHandKey]
-  --   pendingChange[key] = value
-  -- end
-
   local pendingChange = decodeIncomingMessage(message)
 
   -- Check to see if we already have a change with a matching id
   if (Test_Save_Changes[pendingChange.updatedAt]) then
     return
   else
-    -- TODO: Apply the change
-      -- Lookup the id of the listing the change points to
-      -- Update any properties
-
     -- Write the change to our change DB
     Test_Save_Changes[pendingChange.updatedAt] = pendingChange
+
+    -- Apply the change
+    -- TODO - DRY up
+    if (pendingChange.changeAction == ADD_LISTING) then
+      if not Test_Save_Listings[pendingChange.id] then
+        Test_Save_Listings[pendingChange.id] = {}
+      end
+
+      -- Overwrite each property found in the DB with what's in pendingChange
+      for key, value in pairs(pendingChange) do
+        Test_Save_Listings[pendingChange.id][key] = value 
+      end
+    elseif (pendingChange.changeAction == ADD_RSVP) then
+      if not Test_Save_Rsvps[pendingChange.id] then
+        Test_Save_Rsvps[pendingChange.id] = {}
+      end
+
+      -- Overwrite each property found in the DB with what's in pendingChange
+      for key, value in pairs(pendingChange) do
+        Test_Save_Rsvps[pendingChange.id][key] = value 
+      end
+    end
+
+    -- TODO:  Handle DELETE_LISTING and REMOVE_RSVP
   end
 end
 
@@ -152,12 +128,11 @@ function createEventFrame()
         Test_Save_Rsvps = {}
       end
   
-      -- TODO - Add this in when ready - this is to broadcast a sync request when the addon is loaded
-      -- changeTimeStamps = getTimeStampsFromChangeDB()
+      changeTimeStamps = getTimeStampsFromChangeDB()
   
-      -- if (table.maxn(changeTimeStamps) > 0) then
-      --   broadcastSyncRequest(changeTimeStamps[table.maxn(changeTimeStamps)])
-      -- end
+      if (table.maxn(changeTimeStamps) > 0) then
+        broadcastSyncRequest(changeTimeStamps[table.maxn(changeTimeStamps)])
+      end
     end
   end
   

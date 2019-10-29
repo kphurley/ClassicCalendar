@@ -7,6 +7,7 @@ local ListingsFrame = NS.createListingsFrame()
 SLASH_CLASSICCALENDAR1 = '/ccal'
 function SlashCmdList.CLASSICCALENDAR(msg, editBox)
   ListingsFrame:Show()
+  ListingsFrame:RefreshView()
 end
 
 -- OnLoad, but hidden until actions trigger them to show
