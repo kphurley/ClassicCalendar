@@ -57,12 +57,16 @@ function handleSyncRequest(message, channel, sender, ...)
   local responseMessage = table.concat(timeStampsNeeded, ",")
   print("sync response ", responseMessage)
   -- TODO - uncomment the following when sync is ready
+  -- Question - can we just send CCAL_CHANGE_RES here?  Why do we need an extra one for SYNC?
   --C_ChatInfo.SendAddonMessage("CCAL_SYNC_RES", responseMessage, "WHISPER", sender)  -- TODO, get the target from the function args
 end
 
 -- This function handles asking the sender for any needed changes that this client is missing
+-- The contents of the message should be a list of timestamps this player is missing
 function handleSyncResponse(message, channel, sender, ...)
-  -- TODO
+  -- TODO - decode message to array
+
+  -- For each timestamp in message - request the change using CCAL_CHANGE
 end
 
 -- Send the change with the given ID as an message

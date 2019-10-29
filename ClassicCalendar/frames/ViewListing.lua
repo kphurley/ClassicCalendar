@@ -48,6 +48,68 @@ function createViewListingFrame(button, listingData)
   ViewListingFrame.MaxPlayersText:SetPoint("TOPLEFT", ViewListingFrame.MaxPlayersLabel, "BOTTOMLEFT", 0, -5)
   ViewListingFrame.MaxPlayersText:SetText(listingData.numPlayers)
 
+  ViewListingFrame.RsvpLabel = ViewListingFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+  ViewListingFrame.RsvpLabel:SetPoint("TOPLEFT", ViewListingFrame.MaxPlayersText, "BOTTOMLEFT", 0, -20)
+  ViewListingFrame.RsvpLabel:SetText("Attending")
+
+  if not listingData.rsvps then
+    local NoPlayerRsvpText = ViewListingFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    NoPlayerRsvpText:SetPoint("TOPLEFT", ViewListingFrame.RsvpLabel, "BOTTOMLEFT", 0, -5)
+    NoPlayerRsvpText:SetText("No players signed up yet.")
+  else
+    local RsvpTexts = {}
+    for idx, rsvp in pairs(listingData.rsvps) do
+      local PlayerRsvpText = ViewListingFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+
+      if idx == 1 then
+        PlayerRsvpText:SetPoint("TOPLEFT", ViewListingFrame.RsvpLabel, "BOTTOMLEFT", 0, -5)
+      else
+        PlayerRsvpText:SetPoint("TOPLEFT", RsvpTexts[idx - 1], "BOTTOMLEFT", 0, -5)
+      end
+
+      PlayerRsvpText:SetText(rsvp.name .. " " .. rsvp.level .. " " .. rsvp.class .. " " .. rsvp.note)
+    end
+  end
+
+  -- If not currently attending
+  ViewListingFrame.AddRsvpButton = CreateFrame("Button", "AddRsvpButton", ViewListingFrame, "UIPanelButtonTemplate")
+  ViewListingFrame.AddRsvpButton:SetPoint("BOTTOM", ViewListingFrame.Bg, "BOTTOM", 0, 20)
+  ViewListingFrame.AddRsvpButton:SetText("Sign up")
+
+  ViewListingFrame.AddRsvpButton:SetScript('OnClick', function()
+    -- Gather this player's info
+    -- Create a change
+    -- Send a CCAL_CHANGE_RES message with the change
+    -- Apply the change
+
+    -- Refresh the ViewListingFrame somehow
+  end)
+
+  -- else, give option to remove self from rsvp
+  ViewListingFrame.RemoveRsvpButton = CreateFrame("Button", "RemoveRsvpButton", ViewListingFrame, "UIPanelButtonTemplate")
+  ViewListingFrame.RemoveRsvpButton:SetPoint("BOTTOM", ViewListingFrame.Bg, "BOTTOM", 0, 20)
+  ViewListingFrame.RemoveRsvpButton:SetText("Remove sign up")
+
+  ViewListingFrame.RemoveRsvpButton:SetScript('OnClick', function()
+    -- Create a change (how do we do this?)
+    -- Send a CCAL_CHANGE_RES message with the change
+    -- Apply the change
+
+    -- Refresh the ViewListingFrame somehow
+  end)
+
+  -- if event owner or sufficient guild rank GM
+  ViewListingFrame.DeleteEventButton = CreateFrame("Button", "DeleteEventButton", ViewListingFrame, "UIPanelButtonTemplate")
+  ViewListingFrame.DeleteEventButton:SetPoint("BOTTOM", ViewListingFrame.Bg, "BOTTOM", 0, 50)
+  ViewListingFrame.DeleteEventButton:SetText("Delete Event")
+
+  ViewListingFrame.DeleteEventButton:SetScript('OnClick', function()
+    -- Create a change (how do we do this?)
+    -- Send a CCAL_CHANGE_RES message with the change
+    -- Apply the change
+
+    -- Go to event list
+  end)
 
   ViewListingFrame:Show()
 
