@@ -2,7 +2,7 @@
 ## Title: Classic Calendar
 ## Notes: A Calendar/Scheduling addon to help players find and schedule group events
 
-##SavedVariablesPerCharacter: Test_Save, Test_Save_Changes
+##SavedVariablesPerCharacter: Test_Save_Listings, Test_Save_Rsvps, Test_Save_Changes
 
 ClassicCalendar.xml
 Bindings.xml

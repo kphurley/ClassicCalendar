@@ -52,13 +52,16 @@ function createViewListingFrame(button, listingData)
   ViewListingFrame.RsvpLabel:SetPoint("TOPLEFT", ViewListingFrame.MaxPlayersText, "BOTTOMLEFT", 0, -20)
   ViewListingFrame.RsvpLabel:SetText("Attending")
 
-  if not listingData.rsvps then
+  local isPlayerRsvpd = false
+  local rsvpsForListing = Test_Save_Rsvps[listingData.id]
+
+  if not rsvpsForListing then
     local NoPlayerRsvpText = ViewListingFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     NoPlayerRsvpText:SetPoint("TOPLEFT", ViewListingFrame.RsvpLabel, "BOTTOMLEFT", 0, -5)
     NoPlayerRsvpText:SetText("No players signed up yet.")
   else
     local RsvpTexts = {}
-    for idx, rsvp in pairs(listingData.rsvps) do
+    for idx, rsvp in ipairs(rsvpsForListing) do
       local PlayerRsvpText = ViewListingFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 
       if idx == 1 then
@@ -67,49 +70,103 @@ function createViewListingFrame(button, listingData)
         PlayerRsvpText:SetPoint("TOPLEFT", RsvpTexts[idx - 1], "BOTTOMLEFT", 0, -5)
       end
 
-      PlayerRsvpText:SetText(rsvp.name .. " " .. rsvp.level .. " " .. rsvp.class .. " " .. rsvp.note)
+      if rsvp.name == UnitName("player") then
+        isPlayerRsvpd = true
+      end
+
+      PlayerRsvpText:SetText(rsvp.name .. " " .. rsvp.level .. " " .. rsvp.class)
     end
   end
 
-  -- If not currently attending
-  ViewListingFrame.AddRsvpButton = CreateFrame("Button", "AddRsvpButton", ViewListingFrame, "UIPanelButtonTemplate")
-  ViewListingFrame.AddRsvpButton:SetPoint("BOTTOM", ViewListingFrame.Bg, "BOTTOM", 0, 20)
-  ViewListingFrame.AddRsvpButton:SetText("Sign up")
+  if isPlayerRsvpd then
+    ViewListingFrame.RemoveRsvpButton = CreateFrame("Button", "RemoveRsvpButton", ViewListingFrame, "UIPanelButtonTemplate")
+    ViewListingFrame.RemoveRsvpButton:SetPoint("BOTTOM", ViewListingFrame.Bg, "BOTTOM", 0, 20)
+    ViewListingFrame.RemoveRsvpButton:SetText("Remove sign up")
 
-  ViewListingFrame.AddRsvpButton:SetScript('OnClick', function()
-    -- Gather this player's info
-    -- Create a change
-    -- Send a CCAL_CHANGE_RES message with the change
-    -- Apply the change
+    ViewListingFrame.RemoveRsvpButton:SetScript('OnClick', function()
+      -- Create a change
+      local toRemove = nil
+      for idx, rsvp in pairs(rsvpsForListing) do
+        if rsvp.name == UnitName("Player") then
+          toRemove = idx
+        end
+      end
 
-    -- Refresh the ViewListingFrame somehow
-  end)
+      if toRemove then
+        table.remove(rsvpsForListing, toRemove)
+      end
 
-  -- else, give option to remove self from rsvp
-  ViewListingFrame.RemoveRsvpButton = CreateFrame("Button", "RemoveRsvpButton", ViewListingFrame, "UIPanelButtonTemplate")
-  ViewListingFrame.RemoveRsvpButton:SetPoint("BOTTOM", ViewListingFrame.Bg, "BOTTOM", 0, 20)
-  ViewListingFrame.RemoveRsvpButton:SetText("Remove sign up")
+      -- create change
+      -- timestamp, id, change
 
-  ViewListingFrame.RemoveRsvpButton:SetScript('OnClick', function()
-    -- Create a change (how do we do this?)
-    -- Send a CCAL_CHANGE_RES message with the change
-    -- Apply the change
+      -- save change
 
-    -- Refresh the ViewListingFrame somehow
-  end)
+      -- encode change
+      -- Send a CCAL_CHANGE_RES message with the change
 
-  -- if event owner or sufficient guild rank GM
-  ViewListingFrame.DeleteEventButton = CreateFrame("Button", "DeleteEventButton", ViewListingFrame, "UIPanelButtonTemplate")
-  ViewListingFrame.DeleteEventButton:SetPoint("BOTTOM", ViewListingFrame.Bg, "BOTTOM", 0, 50)
-  ViewListingFrame.DeleteEventButton:SetText("Delete Event")
+      -- Apply the change
 
-  ViewListingFrame.DeleteEventButton:SetScript('OnClick', function()
-    -- Create a change (how do we do this?)
-    -- Send a CCAL_CHANGE_RES message with the change
-    -- Apply the change
+      -- Refresh the ViewListingFrame somehow
+    end)
+  else
+    ViewListingFrame.AddRsvpButton = CreateFrame("Button", "AddRsvpButton", ViewListingFrame, "UIPanelButtonTemplate")
+    ViewListingFrame.AddRsvpButton:SetPoint("BOTTOM", ViewListingFrame.Bg, "BOTTOM", 0, 20)
+    ViewListingFrame.AddRsvpButton:SetText("Sign up")
 
-    -- Go to event list
-  end)
+    ViewListingFrame.AddRsvpButton:SetScript('OnClick', function()
+      -- Gather this player's info
+      _, engClass = UnitClass("player")
+      
+      local timestamp = time()
+      local pendingRsvpChange = {
+        id = listingData.id,
+        name = UnitName("player"),
+        level = UnitLevel("player"),
+        class = engClass,
+        updatedAt = timestamp,
+        --changeAction = ADD_RSVP
+      }
+
+      -- Create a change
+      Test_Save_Changes[timestamp] = pendingRsvpChange
+
+      -- encode change
+      local msg = encodeOutgoingMessage(pendingRsvpChange)
+
+      -- Send a CCAL_CHANGE_RES message with the change
+      C_ChatInfo.SendAddonMessage("CCAL_CHANGE_RES", msg, "GUILD")
+
+      -- Apply the change
+      if not Test_Save_Rsvps[listingData.id] then
+        Test_Save_Rsvps[listingData.id] = {}
+      end
+
+      table.insert(Test_Save_Rsvps[listingData.id], {
+        name = pendingRsvpChange.name,
+        level = pendingRsvpChange.level,
+        class = pendingRsvpChange.class,
+      })
+
+      -- Refresh the ViewListingFrame somehow
+    end)
+  end
+
+  local guildName, guildRankName, guildRankIndex = GetGuildInfo("player");
+  local playerCanDeleteEvent = (guildRankIndex == 0) -- 0 is GM Rank
+
+  if playerCanDeleteEvent then
+    ViewListingFrame.DeleteEventButton = CreateFrame("Button", "DeleteEventButton", ViewListingFrame, "UIPanelButtonTemplate")
+    ViewListingFrame.DeleteEventButton:SetPoint("BOTTOM", ViewListingFrame.Bg, "BOTTOM", 0, 50)
+    ViewListingFrame.DeleteEventButton:SetText("Delete Event")
+
+    ViewListingFrame.DeleteEventButton:SetScript('OnClick', function()
+      -- Create a change (how do we do this?)
+      -- Send a CCAL_CHANGE_RES message with the change
+      -- Apply the change
+
+      -- Go to event list
+    end)
+  end
 
   ViewListingFrame:Show()
 

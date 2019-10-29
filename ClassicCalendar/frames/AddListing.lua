@@ -11,54 +11,56 @@ function uuid()
 end
 
 function saveListing (listing, guid)
-  if not Test_Save then
-    Test_Save = {}
+  if not Test_Save_Listings then
+    Test_Save_Listings = {}
   end
 
-  local dateString = dateIntToDateString(listing.startTime)
+  -- TODO - REMOVE IN FAVOR OF FLAT STRUCTURE
+  -- local dateString = dateIntToDateString(listing.startTime)
 
-  if not Test_Save[dateString] then
-    Test_Save[dateString] = {}
-  end
+  -- TODO - REMOVE IN FAVOR OF FLAT STRUCTURE
+  -- if not Test_Save_Listings[dateString] then
+  --   Test_Save_Listings[dateString] = {}
+  -- end
 
-  Test_Save[dateString][guid] = listing
+  -- Test_Save_Listings[dateString][guid] = listing
+  Test_Save_Listings[guid] = listing
 end
 
-function parseListingToMessage (listing)
-  return
-    "i:" ..
-    listing.id ..
-    "," ..
-    "t:" ..
-    listing.title ..
-    "," ..
-    "d:" ..
-    listing.description ..
-    "," ..
-    "st:" ..
-    listing.startTime ..
-    "," ..
-    "et:" ..
-    listing.endTime ..
-    "," ..
-    "min:" ..
-    listing.minLevel ..
-    "," ..
-    "max:" ..
-    listing.maxLevel ..
-    "," ..
-    "n:" ..
-    listing.numPlayers ..
-    "," ..
-    "u:" ..
-    listing.updatedAt
-end
+-- function parseListingToMessage (listing)
+--   return
+--     "i:" ..
+--     listing.id ..
+--     "," ..
+--     "t:" ..
+--     listing.title ..
+--     "," ..
+--     "d:" ..
+--     listing.description ..
+--     "," ..
+--     "st:" ..
+--     listing.startTime ..
+--     "," ..
+--     "et:" ..
+--     listing.endTime ..
+--     "," ..
+--     "min:" ..
+--     listing.minLevel ..
+--     "," ..
+--     "max:" ..
+--     listing.maxLevel ..
+--     "," ..
+--     "n:" ..
+--     listing.numPlayers ..
+--     "," ..
+--     "u:" ..
+--     listing.updatedAt
+-- end
 
 -- Convention here needs to be that only changes or sync requests are broadcast
 function broadcastListing (listing)
-  -- Send listing (change) to addon chat channel
-  local message = parseListingToMessage(listing)
-  C_ChatInfo.SendAddonMessage ("CCAL_CHANGE_RES", message, "WHISPER", "Niosporin-Atiesh")
+  local msg = encodeOutgoingMessage(listing)
+  C_ChatInfo.SendAddonMessage ("CCAL_CHANGE_RES", msg, "WHISPER", "Niosporin-Atiesh")
 end
 
 function createAddListingFrame()
@@ -104,7 +106,7 @@ function createAddListingFrame()
   startDateMonthInput:SetPoint("TOPLEFT", 120, -160)
   startDateMonthInput:SetAutoFocus(false)
   startDateMonthInput:SetMaxLetters(2)
-  startDateMonthInput:SetText("MM")
+  --startDateMonthInput:SetText("MM")
 
   local startDateSlashLabel = AddListingFrame:CreateFontString("startDateSlashLabel", 'ARTWORK', "GameFontNormal")
   startDateSlashLabel:SetPoint("TOPLEFT", 150, -160)
@@ -115,14 +117,14 @@ function createAddListingFrame()
   startDateDayInput:SetPoint("TOPLEFT", 165, -160)
   startDateDayInput:SetAutoFocus(false)
   startDateDayInput:SetMaxLetters(2)
-  startDateDayInput:SetText("DD")
+  --startDateDayInput:SetText("DD")
 
   local startTimeHourInput = CreateFrame("EditBox", "StartTimeHourInput", AddListingFrame, "InputBoxTemplate")
   startTimeHourInput:SetSize(25,20)
   startTimeHourInput:SetPoint("TOPLEFT", 215, -160)
   startTimeHourInput:SetAutoFocus(false)
   startTimeHourInput:SetMaxLetters(2)
-  startTimeHourInput:SetText("HH")
+  --startTimeHourInput:SetText("HH")
 
   local startTimeColonLabel = AddListingFrame:CreateFontString("StartTimeColon", 'ARTWORK', "GameFontNormal")
   startTimeColonLabel:SetPoint("TOPLEFT", 245, -160)
@@ -133,30 +135,30 @@ function createAddListingFrame()
   startTimeMinuteInput:SetPoint("TOPLEFT", 260, -160)
   startTimeMinuteInput:SetAutoFocus(false)
   startTimeMinuteInput:SetMaxLetters(2)
-  startTimeMinuteInput:SetText("MM")
+  --startTimeMinuteInput:SetText("MM")
 
   -- END TIME
   local endTimeLabel = AddListingFrame:CreateFontString("EndTimeLabel", 'ARTWORK', "GameFontNormal")
   endTimeLabel:SetPoint("TOPLEFT", 55, -200)
   endTimeLabel:SetText("End:")
 
-  local endDateMonthInput = CreateFrame("EditBox", "endDateMonthInput", AddListingFrame, "InputBoxTemplate")
+  local endDateMonthInput = CreateFrame("EditBox", "EndDateMonthInput", AddListingFrame, "InputBoxTemplate")
   endDateMonthInput:SetSize(25,20)
   endDateMonthInput:SetPoint("TOPLEFT", 120, -200)
   endDateMonthInput:SetAutoFocus(false)
   endDateMonthInput:SetMaxLetters(2)
-  endDateMonthInput:SetText("MM")
+  --endDateMonthInput:SetText("MM")
 
-  local endDateSlashLabel = AddListingFrame:CreateFontString("endDateSlashLabel", 'ARTWORK', "GameFontNormal")
+  local endDateSlashLabel = AddListingFrame:CreateFontString("EndDateSlashLabel", 'ARTWORK', "GameFontNormal")
   endDateSlashLabel:SetPoint("TOPLEFT", 150, -200)
   endDateSlashLabel:SetText("/")
 
-  local endDateDayInput = CreateFrame("EditBox", "endDateDayInput", AddListingFrame, "InputBoxTemplate")
+  local endDateDayInput = CreateFrame("EditBox", "EndDateDayInput", AddListingFrame, "InputBoxTemplate")
   endDateDayInput:SetSize(25,20)
   endDateDayInput:SetPoint("TOPLEFT", 165, -200)
   endDateDayInput:SetAutoFocus(false)
   endDateDayInput:SetMaxLetters(2)
-  endDateDayInput:SetText("DD")
+  --endDateDayInput:SetText("DD")
 
 
   local endTimeHourInput = CreateFrame("EditBox", "EndTimeHourInput", AddListingFrame, "InputBoxTemplate")
@@ -164,7 +166,7 @@ function createAddListingFrame()
   endTimeHourInput:SetPoint("TOPLEFT", 215, -200)
   endTimeHourInput:SetAutoFocus(false)
   endTimeHourInput:SetMaxLetters(2)
-  endTimeHourInput:SetText("HH")
+  --endTimeHourInput:SetText("HH")
 
   local endTimeColonLabel = AddListingFrame:CreateFontString("EndTimeColon", 'ARTWORK', "GameFontNormal")
   endTimeColonLabel:SetPoint("TOPLEFT", 245, -200)
@@ -175,7 +177,7 @@ function createAddListingFrame()
   endTimeMinuteInput:SetPoint("TOPLEFT", 260, -200)
   endTimeMinuteInput:SetAutoFocus(false)
   endTimeMinuteInput:SetMaxLetters(2)
-  endTimeMinuteInput:SetText("MM")
+  --endTimeMinuteInput:SetText("MM")
 
   -- MIN LEVEL
   local minLevelLabel = AddListingFrame:CreateFontString("MinLevelLabel", 'ARTWORK', "GameFontNormal")
@@ -213,32 +215,33 @@ function createAddListingFrame()
   SubmitButton:SetScript('OnClick', function()
     -- TODO change hard coded year
     local startDateInt = time{
-      year="2019",
-      month=startDateMonthInput:GetText(),
-      day=startDateDayInput:GetText(),
-      hour=startTimeHourInput:GetText(),
-      min=startTimeMinuteInput:GetText()
+      year = "2019",
+      month = StartDateMonthInput:GetText(),
+      day = StartDateDayInput:GetText(),
+      hour = StartTimeHourInput:GetText(),
+      min = StartTimeMinuteInput:GetText()
     }
 
     local endDateInt = time{
-      year="2019",
-      month=endDateMonthInput:GetText(),
-      day=endDateDayInput:GetText(),
-      hour=endTimeHourInput:GetText(),
-      min=endTimeMinuteInput:GetText()
+      year = "2019",
+      month = EndDateMonthInput:GetText(),
+      day = EndDateDayInput:GetText(),
+      hour = EndTimeHourInput:GetText(),
+      min = EndTimeMinuteInput:GetText()
     }
 
     local guid = uuid()
     local pendingListing = {
-      id=guid,
-      title=titleInput:GetText(),
-      description=descriptionInput:GetText(),
-      startTime=startDateInt,
-      endTime=endDateInt,
-      minLevel=minLevelInput:GetText(),
-      maxLevel=maxLevelInput:GetText(),
-      numPlayers=numPlayersInput:GetText(),
-      updatedAt=time()
+      id = guid,
+      title = TitleInput:GetText(),
+      description = DescriptionInput:GetText(),
+      startTime = startDateInt,
+      endTime = endDateInt,
+      minLevel = MinLevelInput:GetText(),
+      maxLevel = MaxLevelInput:GetText(),
+      numPlayers = NumPlayersInput:GetText(),
+      updatedAt = time(),
+      --changeAction=ADD_LISTING
     }
 
     -- TODO - maybe what we want to do here instead is:

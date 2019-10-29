@@ -27,8 +27,6 @@ function createListingsFrame()
 
   ListingsFrame.AddListingButton:SetScript('OnClick', function()
     ListingsFrame:Hide()
-
-    createAddListingFrame()
     AddListingFrame:Show()
   end)
 
@@ -67,18 +65,11 @@ function createListingsFrame()
       local lineplusoffset = line + offset
       local button = buttons[line]
       if lineplusoffset > numItems then
-          button:Hide()
+        button:Hide()
       else
-        if not buttonInfoList[lineplusoffset].header then
-          button.Title:SetText(buttonInfoList[lineplusoffset].title)
-          button.Title:SetFontObject("GameFontNormal")
-          button.Description:SetText(buttonInfoList[lineplusoffset].description)
-        else
-          button.Title:SetText("")
-          button.Description:SetText(buttonInfoList[lineplusoffset].header)
-          button.Description:SetFontObject("GameFontNormalLarge")
-        end
-
+        button.Title:SetText(buttonInfoList[lineplusoffset].title)
+        button.Title:SetFontObject("GameFontNormal")
+        button.Description:SetText(buttonInfoList[lineplusoffset].description)
         button:Show()
       end
     end
@@ -90,21 +81,15 @@ function createListingsFrame()
   end)
 
   ListingsFrame.ListingsScrollFrame:SetScript("OnShow", function(self, event, ...)
-    -- At this point Test_Save SHOULD be loaded...
+    -- At this point Test_Save_Listings SHOULD be loaded...
 
     -- Initialize keys and listind data, and flatten the structure to a list in the form
     -- { date1, event, event, date2, event, event, event, ... }
     local keyIdx = 1
-    for key, value in pairs(Test_Save) do
+    for key, listing in pairs(Test_Save_Listings) do
       keys[keyIdx] = key
-      buttonInfoList[keyIdx] = { header = key } -- TODO - convert key back to a date
+      buttonInfoList[keyIdx] = listing
       keyIdx = keyIdx + 1
-     
-      for id, listing in pairs(value) do
-        keys[keyIdx] = id
-        buttonInfoList[keyIdx] = listing
-        keyIdx = keyIdx + 1
-      end
     end
 
     -- Create the buttons to show in the frame
@@ -131,9 +116,7 @@ function createListingsFrame()
           ViewListingFrame:Hide()
         end
 
-        if not buttonInfoList[i].header then
-          createViewListingFrame(button, buttonInfoList[i])
-        end
+        createViewListingFrame(button, buttonInfoList[i])
       end)
       
       buttons[i] = button
