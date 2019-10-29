@@ -1,7 +1,7 @@
 local ClassicCalendar, ClassicCalendarNS = ...
 
 -- This is here to save space, since we can only send 250 characters over the wire
-local SHORTHAND_TO_KEY_MAPPING = {
+SHORTHAND_TO_KEY_MAPPING = {
   i="id",
   t="title",
   d="description",
@@ -9,12 +9,15 @@ local SHORTHAND_TO_KEY_MAPPING = {
   et="endTime",
   min="minLevel",
   max="maxLevel",
-  n="numPlayers",
+  num="numPlayers",
   a="attendees",
-  u="updatedAt"
+  u="updatedAt",
+  l="level",
+  n="name",
+  c="class"
 }
 
-local KEY_TO_SHORTHAND_MAPPING = {
+KEY_TO_SHORTHAND_MAPPING = {
   id="i",
   title="t",
   description="d",
@@ -24,7 +27,10 @@ local KEY_TO_SHORTHAND_MAPPING = {
   maxLevel="max",
   numPlayers="num",
   attendees="a",
-  updatedAt="u"
+  updatedAt="u",
+  name="n",
+  level="l",
+  class="c"
 }
 
 -- Create a CHAT_ADDON_MSG with prefix CCAL_SYNC letting clients know that we want to sync
@@ -57,40 +63,46 @@ function handleSyncRequest(message, channel, sender, ...)
   local responseMessage = table.concat(timeStampsNeeded, ",")
   print("sync response ", responseMessage)
   -- TODO - uncomment the following when sync is ready
+  -- Question - can we just send CCAL_CHANGE_RES here?  Why do we need an extra one for SYNC?
   --C_ChatInfo.SendAddonMessage("CCAL_SYNC_RES", responseMessage, "WHISPER", sender)  -- TODO, get the target from the function args
 end
 
 -- This function handles asking the sender for any needed changes that this client is missing
+-- The contents of the message should be a list of timestamps this player is missing
 function handleSyncResponse(message, channel, sender, ...)
-  -- TODO
+  -- TODO - decode message to array
+
+  -- For each timestamp in message - request the change using CCAL_CHANGE
 end
 
 -- Send the change with the given ID as an message
 function handleChangeRequest(timeStamp, channel, sender, ...)
   local changeEntry = Test_Save_Changes[timeStamp]
 
-  C_ChatInfo.SendAddonMessage("CCAL_CHANGE_RES", message, "WHISPER", sender)
+  --C_ChatInfo.SendAddonMessage("CCAL_CHANGE_RES", message, "WHISPER", sender)
 end
 
 -- This function handles applying changes and writing the change encoded in message to the change DB
 function handleChangeResponse(message, channel, sender, ...)
-  tempParsedMessage = {}
-  pendingChange = {}
+  -- tempParsedMessage = {}
+  -- pendingChange = {}
 
-  -- Split the message into "words" - the %w+ is a lua matcher for alphanumeric characters
-  -- See: http://www.lua.org/pil/20.2.html for the docs on this
-  for word in message:gmatch("%w+") do
-    table.insert(tempParsedMessage, word)
-  end
+  -- -- Split the message into "words" - the %w+ is a lua matcher for alphanumeric characters
+  -- -- See: http://www.lua.org/pil/20.2.html for the docs on this
+  -- for word in message:gmatch("%w+") do
+  --   table.insert(tempParsedMessage, word)
+  -- end
 
-  -- Now, tempParsedMessage is a table that is "array-like".
-  -- Create actual key-value pairs to store in pendingChange
-  for i=1, table.maxn(tempParsedMessage), 2 do
-    local shortHandKey = tempParsedMessage[i]
-    local value = tempParsedMessage[i+1]
-    local key = SHORTHAND_TO_KEY_MAPPING[shortHandKey]
-    pendingChange[key] = value
-  end
+  -- -- Now, tempParsedMessage is a table that is "array-like".
+  -- -- Create actual key-value pairs to store in pendingChange
+  -- for i=1, table.maxn(tempParsedMessage), 2 do
+  --   local shortHandKey = tempParsedMessage[i]
+  --   local value = tempParsedMessage[i+1]
+  --   local key = SHORTHAND_TO_KEY_MAPPING[shortHandKey]
+  --   pendingChange[key] = value
+  -- end
+
+  local pendingChange = decodeIncomingMessage(message)
 
   -- Check to see if we already have a change with a matching id
   if (Test_Save_Changes[pendingChange.updatedAt]) then
@@ -128,12 +140,16 @@ function createEventFrame()
     elseif event == "ADDON_LOADED" then
       -- Saved variables loaded
       -- Initialize if nil
-      if (Test_Save == nil) then
-        Test_Save = {}
+      if (Test_Save_Listings == nil) then
+        Test_Save_Listings = {}
       end
   
       if (Test_Save_Changes == nil) then
         Test_Save_Changes = {}
+      end
+
+      if (Test_Save_Rsvps == nil) then
+        Test_Save_Rsvps = {}
       end
   
       -- TODO - Add this in when ready - this is to broadcast a sync request when the addon is loaded
