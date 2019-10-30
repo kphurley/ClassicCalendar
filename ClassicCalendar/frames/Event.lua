@@ -5,7 +5,7 @@ local ClassicCalendar, ClassicCalendarNS = ...
 -- Create a CHAT_ADDON_MSG with prefix CCAL_SYNC letting clients know that we want to sync
 -- and providing the most recent change that we have
 function broadcastSyncRequest(timeStamp)
-  C_ChatInfo.SendAddonMessage ("CCAL_SYNC", timestamp, "GUILD")
+  --C_ChatInfo.SendAddonMessage ("CCAL_SYNC", timestamp, "GUILD")
 end
 
 -- This function handles sending a list of all changes that we have that the client requesting the sync doesn't
@@ -99,12 +99,16 @@ function createEventFrame()
   function eventFrame:OnEvent(event, prefix, message, ...)
     if event == "CHAT_MSG_ADDON" then
       if prefix == "CCAL_CHANGE" then
+        print("recieved change message", message, ...)
         handleChangeRequest(message, ...)
       elseif prefix == "CCAL_CHANGE_RES" then
+        print("recieved change response message", message, ...)
         handleChangeResponse(message, ...)
       elseif prefix == "CCAL_SYNC" then
+        print("recieved sync message", message, ...)
         handleSyncRequest(message, ...)
       elseif prefix == "CCAL_SYNC_RES" then
+        print("recieved sync message response", message, ...)
         handleSyncResponse(message, ...)
       end
     elseif event == "PLAYER_LOGIN" then

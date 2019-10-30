@@ -15,5 +15,3 @@ createEventFrame()
 createAddListingFrame()
 
 --createCalendarFrame() -- TODO
-
-

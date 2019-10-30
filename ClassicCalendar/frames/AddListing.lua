@@ -32,6 +32,7 @@ end
 -- Convention here needs to be that only changes or sync requests are broadcast
 function broadcastListing (listing)
   local msg = encodeOutgoingMessage(listing)
+  print("sending message", msg)
   C_ChatInfo.SendAddonMessage ("CCAL_CHANGE_RES", msg, "GUILD")
 end
 

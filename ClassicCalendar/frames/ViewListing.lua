@@ -135,7 +135,7 @@ function createViewListingFrame(button, listingData)
       -- encode change
       local msg = encodeOutgoingMessage(pendingRsvpChange)
 
-      -- Send a CCAL_CHANGE_RES message with the change
+      print("sending message", msg)
       C_ChatInfo.SendAddonMessage("CCAL_CHANGE_RES", msg, "GUILD")
 
       -- Apply the change
