@@ -15,52 +15,25 @@ function saveListing (listing, guid)
     Test_Save_Listings = {}
   end
 
-  -- TODO - REMOVE IN FAVOR OF FLAT STRUCTURE
-  -- local dateString = dateIntToDateString(listing.startTime)
-
-  -- TODO - REMOVE IN FAVOR OF FLAT STRUCTURE
-  -- if not Test_Save_Listings[dateString] then
-  --   Test_Save_Listings[dateString] = {}
-  -- end
-
-  -- Test_Save_Listings[dateString][guid] = listing
   Test_Save_Listings[guid] = listing
 end
 
--- function parseListingToMessage (listing)
---   return
---     "i:" ..
---     listing.id ..
---     "," ..
---     "t:" ..
---     listing.title ..
---     "," ..
---     "d:" ..
---     listing.description ..
---     "," ..
---     "st:" ..
---     listing.startTime ..
---     "," ..
---     "et:" ..
---     listing.endTime ..
---     "," ..
---     "min:" ..
---     listing.minLevel ..
---     "," ..
---     "max:" ..
---     listing.maxLevel ..
---     "," ..
---     "n:" ..
---     listing.numPlayers ..
---     "," ..
---     "u:" ..
---     listing.updatedAt
--- end
+function createAndSaveChange (listing, type)
+  if not Test_Save_Changes then
+    Test_Save_Changes = {}
+  end
+
+  listing.changeAction = type
+  Test_Save_Changes[listing.updatedAt] = listing
+
+  return listing
+end
 
 -- Convention here needs to be that only changes or sync requests are broadcast
 function broadcastListing (listing)
   local msg = encodeOutgoingMessage(listing)
-  C_ChatInfo.SendAddonMessage ("CCAL_CHANGE_RES", msg, "WHISPER", "Niosporin-Atiesh")
+  print("sending message", msg)
+  C_ChatInfo.SendAddonMessage ("CCAL_CHANGE_RES", msg, "GUILD")
 end
 
 function createAddListingFrame()
@@ -241,7 +214,6 @@ function createAddListingFrame()
       maxLevel = MaxLevelInput:GetText(),
       numPlayers = NumPlayersInput:GetText(),
       updatedAt = time(),
-      --changeAction=ADD_LISTING
     }
 
     -- TODO - maybe what we want to do here instead is:
@@ -252,10 +224,12 @@ function createAddListingFrame()
     -- And it would be reusable in the event handler
 
     saveListing(pendingListing, guid)
-    broadcastListing(pendingListing)
+    local savedChange = createAndSaveChange(pendingListing, ADD_LISTING)
+    broadcastListing(savedChange)
     
     AddListingFrame:Hide()
     ListingsFrame:Show()
+    ListingsFrame:RefreshView()
   end)
 
   BackButton:SetScript('OnClick', function()

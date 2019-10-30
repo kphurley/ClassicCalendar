@@ -81,6 +81,7 @@ function createViewListingFrame(button, listingData)
   if isPlayerRsvpd then
     ViewListingFrame.RemoveRsvpButton = CreateFrame("Button", "RemoveRsvpButton", ViewListingFrame, "UIPanelButtonTemplate")
     ViewListingFrame.RemoveRsvpButton:SetPoint("BOTTOM", ViewListingFrame.Bg, "BOTTOM", 0, 20)
+    ViewListingFrame.RemoveRsvpButton:SetSize(100, 30)
     ViewListingFrame.RemoveRsvpButton:SetText("Remove sign up")
 
     ViewListingFrame.RemoveRsvpButton:SetScript('OnClick', function()
@@ -111,6 +112,7 @@ function createViewListingFrame(button, listingData)
   else
     ViewListingFrame.AddRsvpButton = CreateFrame("Button", "AddRsvpButton", ViewListingFrame, "UIPanelButtonTemplate")
     ViewListingFrame.AddRsvpButton:SetPoint("BOTTOM", ViewListingFrame.Bg, "BOTTOM", 0, 20)
+    ViewListingFrame.AddRsvpButton:SetSize(100, 30)
     ViewListingFrame.AddRsvpButton:SetText("Sign up")
 
     ViewListingFrame.AddRsvpButton:SetScript('OnClick', function()
@@ -124,7 +126,7 @@ function createViewListingFrame(button, listingData)
         level = UnitLevel("player"),
         class = engClass,
         updatedAt = timestamp,
-        --changeAction = ADD_RSVP
+        changeAction = ADD_RSVP
       }
 
       -- Create a change
@@ -133,7 +135,7 @@ function createViewListingFrame(button, listingData)
       -- encode change
       local msg = encodeOutgoingMessage(pendingRsvpChange)
 
-      -- Send a CCAL_CHANGE_RES message with the change
+      print("sending message", msg)
       C_ChatInfo.SendAddonMessage("CCAL_CHANGE_RES", msg, "GUILD")
 
       -- Apply the change
@@ -157,6 +159,7 @@ function createViewListingFrame(button, listingData)
   if playerCanDeleteEvent then
     ViewListingFrame.DeleteEventButton = CreateFrame("Button", "DeleteEventButton", ViewListingFrame, "UIPanelButtonTemplate")
     ViewListingFrame.DeleteEventButton:SetPoint("BOTTOM", ViewListingFrame.Bg, "BOTTOM", 0, 50)
+    ViewListingFrame.DeleteEventButton:SetSize(100, 30)
     ViewListingFrame.DeleteEventButton:SetText("Delete Event")
 
     ViewListingFrame.DeleteEventButton:SetScript('OnClick', function()

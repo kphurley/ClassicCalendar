@@ -48,33 +48,48 @@ function createListingsFrame()
   ListingsFrame.ListingsScrollFrame:SetPoint("BOTTOM", ListingsFrame.ListingsScrollFrameContainer, "BOTTOM", 0, 12)
   ListingsFrame.ListingsScrollFrame:SetPoint("RIGHT", ListingsFrame.ListingsScrollFrameContainer, "RIGHT", -30, 0)
   
-  local NUM_BUTTONS = 8
-  local BUTTON_HEIGHT = 50
-  local BUTTON_WIDTH = 400
+  ListingsFrame.NUM_BUTTONS = 8
+  ListingsFrame.BUTTON_HEIGHT = 50
+  ListingsFrame.BUTTON_WIDTH = 400
   
-  local buttons = {}
-  local buttonInfoList = {}
-  local keys = {}
+  ListingsFrame.buttons = {}
+  ListingsFrame.buttonInfoList = {}
+  ListingsFrame.keys = {}
   
   function UpdateListingScrollFrame(frame)
-    local numItems = #keys
-    FauxScrollFrame_Update(frame, numItems, NUM_BUTTONS, BUTTON_HEIGHT)
+    print("updated")
+    local numItems = #ListingsFrame.keys
+    FauxScrollFrame_Update(frame, numItems, ListingsFrame.NUM_BUTTONS, ListingsFrame.BUTTON_HEIGHT)
     local offset = FauxScrollFrame_GetOffset(frame)
 
-    for line = 1, NUM_BUTTONS do
+    for line = 1, ListingsFrame.NUM_BUTTONS do
       local lineplusoffset = line + offset
-      local button = buttons[line]
+      local button = ListingsFrame.buttons[line]
       if lineplusoffset > numItems then
         button:Hide()
       else
-        button.Title:SetText(buttonInfoList[lineplusoffset].title)
+        print("title?", ListingsFrame.buttonInfoList[lineplusoffset].title)
+        button.Title:SetText(ListingsFrame.buttonInfoList[lineplusoffset].title)
         button.Title:SetFontObject("GameFontNormal")
-        button.Description:SetText(buttonInfoList[lineplusoffset].description)
+        button.Description:SetText(ListingsFrame.buttonInfoList[lineplusoffset].description)
         button:Show()
       end
     end
   end
+
+  function RefreshDataFromDB(frame)
+    local keyIdx = 1
+    for key, listing in pairs(Test_Save_Listings) do
+      frame.keys[keyIdx] = key
+      frame.buttonInfoList[keyIdx] = listing
+      keyIdx = keyIdx + 1
+    end
+  end
   
+  ListingsFrame.RefreshView = function(self)
+    UpdateListingScrollFrame(self.ListingsScrollFrame)
+    RefreshDataFromDB(self)
+  end
   
   ListingsFrame.ListingsScrollFrame:SetScript("OnVerticalScroll", function(self, offset)
     FauxScrollFrame_OnVerticalScroll(self, offset, BUTTON_HEIGHT, UpdateListingScrollFrame)
@@ -85,20 +100,15 @@ function createListingsFrame()
 
     -- Initialize keys and listind data, and flatten the structure to a list in the form
     -- { date1, event, event, date2, event, event, event, ... }
-    local keyIdx = 1
-    for key, listing in pairs(Test_Save_Listings) do
-      keys[keyIdx] = key
-      buttonInfoList[keyIdx] = listing
-      keyIdx = keyIdx + 1
-    end
+    RefreshDataFromDB(ListingsFrame)
 
     -- Create the buttons to show in the frame
-    for i = 1, NUM_BUTTONS do
+    for i = 1, ListingsFrame.NUM_BUTTONS do
       local button = CreateFrame("Button", nil, ListingsFrame.ListingsScrollFrame:GetParent())
       if i == 1 then
           button:SetPoint("TOPLEFT", ListingsFrame.ListingsScrollFrame, "TOPLEFT", 16, -16)
       else
-          button:SetPoint("TOP", buttons[i - 1], "BOTTOM")
+          button:SetPoint("TOP", ListingsFrame.buttons[i - 1], "BOTTOM")
       end
 
       button.Title = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -107,7 +117,7 @@ function createListingsFrame()
       button.Description = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
       button.Description:SetPoint("TOPLEFT", button.Title, "BOTTOMLEFT", 0, -5)
 
-      button:SetSize(BUTTON_WIDTH, BUTTON_HEIGHT)
+      button:SetSize(ListingsFrame.BUTTON_WIDTH, ListingsFrame.BUTTON_HEIGHT)
 
       button:SetScript('OnClick', function()
         -- There is only one ViewListingFrame allowed at a time, so it's global.
@@ -116,10 +126,10 @@ function createListingsFrame()
           ViewListingFrame:Hide()
         end
 
-        createViewListingFrame(button, buttonInfoList[i])
+        createViewListingFrame(button, ListingsFrame.buttonInfoList[i])
       end)
       
-      buttons[i] = button
+      ListingsFrame.buttons[i] = button
     end
 
     UpdateListingScrollFrame(self)

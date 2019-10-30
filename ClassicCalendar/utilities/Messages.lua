@@ -15,7 +15,7 @@ SHORTHAND_TO_KEY_MAPPING = {
   l="level",
   n="name",
   c="class",
-  --chg="changeAction",  -- WHY DON'T THESE WORK?
+  chg="changeAction",
 }
 
 KEY_TO_SHORTHAND_MAPPING = {
@@ -32,7 +32,7 @@ KEY_TO_SHORTHAND_MAPPING = {
   name="n",
   level="l",
   class="c",
-  --changeAction="chg",
+  changeAction="chg",
 }
 
 -- Change actions
@@ -72,7 +72,7 @@ function decodeIncomingMessage(msg)
     local shortHandKey = tempParsedMessage[i]
     local value = tempParsedMessage[i+1]
     local key = SHORTHAND_TO_KEY_MAPPING[shortHandKey]
-    print("shortHandKey", shortHandKey, "key", key)
+
     decodedTable[key] = value
   end
 
